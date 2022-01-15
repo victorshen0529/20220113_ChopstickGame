@@ -587,6 +587,39 @@ class A_chopsticks:
         self.game_g = game_g
         self.play(p1, p2, game_g)
         
+    # this function checks after P2 makes his/her move, whether P1 has any moves that
+    #   will make P2 lose
+    def isSituationSafe(self, p1L, p1R, p2L, p2R):
+        # check for P1's outs (any hand >= 5) as the result of the previous P2's move/attack
+        if (p1L >= 5):
+            p1L = 0
+        if (p1R >= 5):
+            p1R = 0
+
+        # if both P2's hands are alive (> 0), return True and exit because even one hand
+        #   is killed, P2 is still alive
+        if ((p2L != 0) and (p2R != 0)):
+            return True
+
+        # find the P1's attacking hand (the bigger hand) and P2's victim hand (the non-zero hand)
+        p1B = None
+        if (p1L > p1R):
+            p1B = p1L
+        else:
+            p1B = p1R
+        
+        p2N = None
+        if (p2L > 0):
+            p2N = p2L
+        else:
+            p2N = p2R
+        
+        # check if the victim hand will die in P1's next turn
+        if ((p1B + p2N) >= 5):
+            return False
+        else:
+            return True
+
     def comp_play(self, p1, p2, game_g):
         '''
         This program is the intelligence for the computer to go off of.
@@ -598,6 +631,56 @@ class A_chopsticks:
         #   next move of the computer which will get used in method comp_dec.
         text =""
         
+        # this AI strategy always tries to attack, as long as such a move is safe, meaning
+        #   P2 won't die after it attacks. if P2 doesn't have a safe attack move, do switch
+        #   instead
+        foundAGoodMove = False
+        # we only use a non-zero hand to attack and only attack a non-zero hand
+        if ((p1.get_L() > 0) and (p2.get_L() > 0) and self.isSituationSafe(p1.get_L() + p2.get_L(), p1.get_R(), p2.get_L(), p2.get_R())):     
+            p1.add_toL(p2.get_L())
+            text = "Computer decides to attack your LEFT with its LEFT"
+            foundAGoodMove = True
+        elif ((p1.get_L() > 0) and (p2.get_R() > 0) and self.isSituationSafe(p1.get_L() + p2.get_R(), p1.get_R(), p2.get_L(), p2.get_R())):
+            p1.add_toL(p2.get_R())
+            text = "Computer decides to attack your LEFT with its RIGHT"
+            foundAGoodMove = True
+        elif ((p1.get_R() > 0) and (p2.get_L() > 0) and self.isSituationSafe(p1.get_L(), p1.get_R() + p2.get_L(), p2.get_L(), p2.get_R())):
+            p1.add_toR(p2.get_L())
+            text = "Computer decides to attack your RIGHT with its LEFT"
+            foundAGoodMove = True
+        elif ((p1.get_R() > 0) and (p2.get_R() > 0) and self.isSituationSafe(p1.get_L(), p1.get_R() + p2.get_R(), p2.get_L(), p2.get_R())):
+            p1.add_toR(p2.get_R())
+            text = "Computer decides to attack your RIGHT with its RIGHT"
+            foundAGoodMove = True
+        else:
+            # loop through all possible numbers for P2's left hand
+            for i in range(0,p2.get_L() + p2.get_R()):
+                # don't do a switch if the hands will stay the same (only the numbers on the two hands
+                #   are switched)
+                if ((p2.get_L() == i) and (p2.get_R() == (p2.get_L() + p2.get_R() - i))):
+                    continue
+                
+                if (self.isSituationSafe(p1.get_L(), p1.get_R(), i, p2.get_L() + p2.get_R() - i)):
+                    # from the value of i, determine if P2 wants to switch from L to R or vice versa
+                    if (i < p2.get_L()):
+                        #computer switched Left to Right
+                        p2.move_LtoR(p2.get_L() - i)
+                        text = "Computer decides to switch from its LEFT to RIGHT"
+                        foundAGoodMove = True
+                    else:
+                        #computer switched Right to Left
+                        p2.move_RtoL(i - p2.get_L())
+                        text = "Computer decides to switch from its RIGHT to LEFT"
+                        foundAGoodMove = True
+                    break
+        
+        # if none of the options work, do a random option
+        if (foundAGoodMove == False):
+            p1.add_toL(p2.get_L())
+            text = "Computer has no other choice but to attack your LEFT with its LEFT"
+
+        '''
+        # an alternative AI:
         # various moves the computer should take depending on the current situation.
         #   to sum it up, when available, always bring back the 'dead' hand through the
         #   switch move.  Then attack whatever hand has 4 fingers.  Then attack the left
@@ -654,6 +737,7 @@ class A_chopsticks:
                 #computer attacks Left with Left
                 p1.add_toL(p2.get_L())
                 text = "Computer decides to attack your LEFT with its LEFT"
+        '''
         
         # draws text on window explain the move the computer will make
         game_g.comp_dec(text)
