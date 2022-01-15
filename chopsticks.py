@@ -4,6 +4,10 @@ CS111 Final Project
 March 15th 2017
 Chopstick Game
 
+Victor Shen 
+January 9th 2022
+Expand Chae's and Yingying's logic from human vs. computer to computer 1 vs computer 2
+
 This program allows a player to play Chopstick Game against the Computer. 
 
 Rules:
@@ -590,6 +594,7 @@ class A_chopsticks:
     # this function checks after P2 makes his/her move, whether P1 has any moves that
     #   will make P2 lose
     def isSituationSafe(self, p1L, p1R, p2L, p2R):
+        # todo: will use fist() or move the following paragraph outside of isSituationSafe
         # check for P1's outs (any hand >= 5) as the result of the previous P2's move/attack
         if (p1L >= 5):
             p1L = 0
@@ -775,83 +780,47 @@ class A_chopsticks:
         
         # while neither of the players are out, play the game!
         while (p1.get_R() > 0 or p1.get_L() > 0) and (p2.get_R() > 0 or p2.get_L() > 0):
-            
+            # step 1: computer 1's turn
             # print to the command line the situation of the game
             self.display_info(p1, p2)
+            print("Player 1(computer 1)'s Turn")
             
-            print("Player 1(human) - Pick how to attack Player 2")
-            
-            #to display on window that it is the human's turn
-            game_g.h_turn(p1,p2)
-            
-            p1_R = p1.get_R()
-            p1_L = p1.get_L()
-            p2_R = p2.get_R()
-            p2_L = p2.get_L()
-            
-            # gets the input from the player of which move to make through clicking buttons
-            #   on the window
-            p1_turn = game_g.get_attack(p1_R, p1_L, p2_R, p2_L)
-            
-            # updates the instance variables for the computer's hand instance according to
-            #   the decision made in the previous line by the human player.
-            if p1_turn == 0:
-                p2.add_toR(p1.get_R())
-            
-            elif p1_turn == 1:
-                p2.add_toL(p1.get_R())
-            
-            elif p1_turn == 2:
-                p2.add_toR(p1.get_L())
-            
-            elif p1_turn == 3:
-                p2.add_toL(p1.get_L())
-            
-            # when the player decides to swich hands
-            elif p1_turn == 4:
-                # get which hand to switch from
-                action = game_g.get_action(p1_R, p1_L)
-                # if player chooses to switch from the right hand to the left hand
-                if action == 0:
-                    fing_num = game_g.get_fingnum(p1_R, p1_L)
-                    p1.move_RtoL(fing_num + 1)
-                # if player chooses to switch from the left hand ot the right hand
-                elif action == 1:
-                    # switch the position of the parameters for this function in order to
-                    #   make sure that fingers are being switched from the left to the right.
-                    fing_num = game_g.get_fingnum(p1_L, p1_R)
-                    p1.move_LtoR(fing_num + 1)
-            
+            # it is computer 1's turn. Use the intelligence for the computer to go
+            game_g.c_turn(p1,p2)
+            self.comp_play(p1, p2, game_g)  
+
+            # step 2: check if computer 2 has died
             # make sure to update the instance variables using the fist method before
             #   determining if the game should continue on or stop
             p1.fist()        
             p2.fist()
             
-            # if game shall stop because the human player won
-            if p2.get_R() == 0 and p2.get_L() == 0:
+            # if game shall stop because computer 2 lost
+            if (p2.get_R() == 0 and p2.get_L() == 0):
                 self.display_info(p1, p2)
-                print("Yay! You are the chopsticks master!")
-                game_g.humanwin()
+                print("Computer 1 won!")
                 game_g.close()
                 exit()
             
+            # step 3: computer 2's turn
             # if the game shall go on
             self.display_info(p1, p2)
-            print("Player 2(computer)'s Turn")
+            print("Player 2(computer 2)'s Turn")
             
             # it is the computers turn.  Use the intelligence for the computer to go
             game_g.c_turn(p1,p2)
             self.comp_play(p1, p2, game_g)  
             
+            # step 4: check if computer 1 has died
             # make sure to update the instance variables using the fist method before
             #   determining if the game should continue on or stop
             p1.fist()
             p2.fist()
             
             # if the game should stop because the human player lost
-            if p1.get_R() == 0 and p1.get_L() == 0:
+            if (p1.get_R() == 0 and p1.get_L() == 0):
                 self.display_info(p1, p2)
-                print("Boo, you  lost!")
+                print("Computer 2 won!")
                 game_g.compwin()
             
         game_g.close()
@@ -860,8 +829,9 @@ class A_chopsticks:
     
 def main():
     '''
-    The main function creates two instances of the hand, one for the human player
-    and another for the computer.  It then brings in the graphics and plays the game!
+    The main function creates two instances of the hand, one for computer 1 (one AI
+    strategy) and another for computer 2 (a different AI strategy).  It then brings
+    in the graphics and plays the game!
     '''
     p1 = Hand(1,1)
     p2 = Hand(1,1)
