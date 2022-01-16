@@ -625,6 +625,7 @@ class A_chopsticks:
         else:
             return True
 
+#Victor: I was here (1/15)
     def comp_play(self, p1, p2, game_g):
         '''
         This program is the intelligence for the computer to go off of.
