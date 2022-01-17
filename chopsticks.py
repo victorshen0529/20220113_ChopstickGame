@@ -625,8 +625,86 @@ class A_chopsticks:
         else:
             return True
 
-#Victor: I was here (1/15)
-    def comp_play(self, p1, p2, game_g):
+    def comp_play_p1(self, p1, p2, game_g):
+        '''
+        This program is the intelligence for computer1 to use the old AI to find the next move.
+        p1 is the hand instance of computer1, and p2 is the hand instance of 
+        computer2.  game_g is a Game_Graphics instance.
+        '''
+        
+        # create an empty string which later gets updated to hold text that explains the
+        #   next move of the computer which will get used in method comp_dec for p1.
+        text =""
+        
+        # various moves the computer should take depending on the current situation.
+        #   to sum it up, when available, always bring back the 'dead' hand through the
+        #   switch move.  Then attack whatever hand has 4 fingers.  Then attack the left
+        #   or right hand depending on whichever is not 'dead'
+        if p1.get_L() == 0 and p1.get_R() > 1:
+            if p1.get_R() % 2 == 0:
+                #computer1 switched Right to Left(even)
+                p1.move_RtoL((p1.get_R()/2))
+                text = "Computer1 decides to switch from its RIGHT to LEFT"
+            else:
+                #computer1 switched Right to Left(odd)
+                p1.move_RtoL((p1.get_R()//2))
+                text = "Computer1 decides to switch from its RIGHT to LEFT"
+        elif p1.get_R() == 0 and p1.get_L() > 1:
+            if p1.get_L() % 2 == 0:
+                #computer1 switched Left to Right(even)
+                p1.move_LtoR((p1.get_L()/2))
+                text = "Computer1 decides to switch from LEFT to RIGHT "
+            else:
+                #computer1 switched Left to Right(odd)
+                p1.move_LtoR((p1.get_L()//2))
+                text = "Computer1 decides to switch from LEFT to RIGHT"
+        elif p1.get_R() >= 1:
+            if p2.get_R() > 3:
+                #computer1 attacks Right with Right
+                p2.add_toR(p1.get_R())
+                text = "Computer1 decides to attack computer2's RIGHT with its RIGHT"
+            elif p2.get_L() > 3:
+                #computer1 attacks Left with Right
+                p2.add_toL(p1.get_R())
+                text = "Computer1 decides to attack computer2's LEFT with its RIGHT"
+            elif p2.get_L() >= 1:
+                #computer1 attacks Left with Right
+                p2.add_toL(p1.get_R())
+                text = "Computer1 decides to attack computer2's LEFT with its RIGHT"
+            elif p2.get_R() >= 1:
+                #computer1 attacks Right with Right
+                p2.add_toR(p1.get_R())
+                text = "Computer1 decides to attack computer2's RIGHT with its RIGHT"
+        elif p1.get_L() >= 1:
+            if p2.get_R() > 3:
+                #computer1 attacks Right with Left
+                p2.add_toR(p1.get_L())
+                text = "Computer1 decides to attack computer2's RIGHT with its LEFT"
+            elif p2.get_L() > 3:
+                #computer attacks Left with Left
+                p2.add_toL(p1.get_L())
+                text = "Computer1 decides to attack computer2's LEFT with its LEFT"
+            elif p2.get_R() >= 1:
+                #computer attacks Right with Left
+                p2.add_toR(p1.get_L())
+                text = "Computer1 decides to attack computer2's RIGHT with its LEFT"
+            elif p2.get_L() >= 1:
+                #computer attacks Left with Left
+                p2.add_toL(p1.get_L())
+                text = "Computer1 decides to attack computer2's LEFT with its LEFT"
+        
+        # draws text on window explain the move the computer will make
+        game_g.comp_dec(text)
+        
+        # delays the window from erasing info shown by comp_dec and 
+        #   drawing the next sequence of actions
+        time.sleep(3.2)
+        
+        # prints to command line for reference
+        print (text)
+
+#Victor: I was here        
+    def comp_play_p2(self, p1, p2, game_g):
         '''
         This program is the intelligence for the computer to go off of.
         p1 is the hand instance of the human player, and p2 is the hand instance of the
@@ -685,65 +763,6 @@ class A_chopsticks:
             p1.add_toL(p2.get_L())
             text = "Computer has no other choice but to attack your LEFT with its LEFT"
 
-        '''
-        # an alternative AI:
-        # various moves the computer should take depending on the current situation.
-        #   to sum it up, when available, always bring back the 'dead' hand through the
-        #   switch move.  Then attack whatever hand has 4 fingers.  Then attack the left
-        #   or right hand depending on whichever is not 'dead'
-        if p2.get_L() == 0 and p2.get_R() > 1:
-            if p2.get_R() % 2 == 0:
-                #computer switched Right to Left(even)
-                p2.move_RtoL((p2.get_R()/2))
-                text = "Computer decides to switch from its RIGHT to LEFT"
-            else:
-                #computer switched Right to Left(odd)
-                p2.move_RtoL((p2.get_R()//2))
-                text = "Computer decides to switch from its RIGHT to LEFT"
-        elif p2.get_R() == 0 and p2.get_L() > 1:
-            if p2.get_L() % 2 == 0:
-                #computer switched Left to Right(even)
-                p2.move_LtoR((p2.get_L()/2))
-                text = "Computer decides to switch from LEFT to RIGHT "
-            else:
-                #computer switched Left to Right(odd)
-                p2.move_LtoR((p2.get_L()//2))
-                text = "Computer decides to switch from LEFT to RIGHT"
-        elif p2.get_R() >= 1:
-            if p1.get_R() > 3:
-                #computer attacks Right with Right
-                p1.add_toR(p2.get_R())
-                text = "Computer decides to attack your RIGHT with its RIGHT"
-            elif p1.get_L() > 3:
-                #computer attacks Left with Right
-                p1.add_toL(p2.get_R())
-                text = "Computer decides to attack your LEFT with its RIGHT"
-            elif p1.get_L() >= 1:
-                #computer attacks Left with Right
-                p1.add_toL(p2.get_R())
-                text = "Computer decides to attack your LEFT with its RIGHT"
-            elif p1.get_R() >= 1:
-                #computer attacks Right with Right
-                p1.add_toR(p2.get_R())
-                text = "Computer decides to attack your RIGHT with its RIGHT"
-        elif p2.get_L() >= 1:
-            if p1.get_R() > 3:
-                #computer attacks Right with Left
-                p1.add_toR(p2.get_L())
-                text = "Computer decides to attack your RIGHT with its LEFT"
-            elif p1.get_L() > 3:
-                #computer attacks Left with Left
-                p1.add_toL(p2.get_L())
-                text = "Computer decides to attack your LEFT with its LEFT"
-            elif p1.get_R() >= 1:
-                #computer attacks Right with Left
-                p1.add_toR(p2.get_L())
-                text = "Computer decides to attack your RIGHT with its LEFT"
-            elif p1.get_L() >= 1:
-                #computer attacks Left with Left
-                p1.add_toL(p2.get_L())
-                text = "Computer decides to attack your LEFT with its LEFT"
-        '''
         
         # draws text on window explain the move the computer will make
         game_g.comp_dec(text)
@@ -754,8 +773,7 @@ class A_chopsticks:
         
         # prints to command line for reference
         print (text)
-        
-        
+
     def display_info(self, p1, p2):
         '''
         Display the current situation in the game on the command line.
@@ -788,7 +806,7 @@ class A_chopsticks:
             
             # it is computer 1's turn. Use the intelligence for the computer to go
             game_g.c_turn(p1,p2)
-            self.comp_play(p1, p2, game_g)  
+            self.comp_play_p1(p1, p2, game_g)  
 
             # step 2: check if computer 2 has died
             # make sure to update the instance variables using the fist method before
@@ -810,7 +828,7 @@ class A_chopsticks:
             
             # it is the computers turn.  Use the intelligence for the computer to go
             game_g.c_turn(p1,p2)
-            self.comp_play(p1, p2, game_g)  
+            self.comp_play_p2(p1, p2, game_g)  
             
             # step 4: check if computer 1 has died
             # make sure to update the instance variables using the fist method before
