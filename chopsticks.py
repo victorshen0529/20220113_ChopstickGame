@@ -26,6 +26,7 @@ The player loses if both hands are ‘dead’
 Rules and pictures are adopted and edited from http://www.wikihow.com/Play-Chopsticks
 '''
 
+from stat import FILE_ATTRIBUTE_SPARSE_FILE
 import graphics
 
 import time
@@ -253,7 +254,7 @@ class Game_Graphics:
         human_turn = self.hand_status(p1,p2)
         
             
-    def c_turn(self, p1, p2):
+    def c_turn(self, p1, p2, is_p1):
         '''This method displays computer's turn and current finger status
         
         p1 - hand instance of player 1(human)
@@ -272,8 +273,13 @@ class Game_Graphics:
         p2.fist()
         
         # this draws the text shown in the middle of the window
-        comp_turn = self.hand_status(p1,p2)
-        self.c_turn_text = graphics.Text(graphics.Point(330,340),"Computer's Turn")
+        comp_turn = self.hand_status(p1,p2)\
+
+        if (is_p1):
+            self.c_turn_text = graphics.Text(graphics.Point(330,340),"Computer1's Turn")
+        else:
+            self.c_turn_text = graphics.Text(graphics.Point(330,340),"Computer2's Turn")
+
         self.c_turn_text.setStyle("bold")
         self.c_turn_text.setTextColor("Light Slate Blue")
         self.c_turn_text.setSize(15)
@@ -557,12 +563,14 @@ class Game_Graphics:
         h_win_text.draw(self.win)
         
     
-    def compwin(self):
+    def compwin(self, did_p1_win):
         '''This method will tell the human player that he or she loses the game'''
         
         self.undraw()
-        
-        c_win_text = graphics.Text(graphics.Point(330,375),"Boo, you lost!")
+        if (did_p1_win):
+             c_win_text = graphics.Text(graphics.Point(330,375),"Computer1 won!")
+        else:
+             c_win_text = graphics.Text(graphics.Point(330,375),"Computer2 won!")
         c_win_text.setStyle("bold")
         c_win_text.setTextColor("Brown")
         c_win_text.setSize(20)
@@ -722,19 +730,19 @@ class A_chopsticks:
         # we only use a non-zero hand to attack and only attack a non-zero hand
         if ((p1.get_L() > 0) and (p2.get_L() > 0) and self.isSituationSafe(p1.get_L() + p2.get_L(), p1.get_R(), p2.get_L(), p2.get_R())):     
             p1.add_toL(p2.get_L())
-            text = "Computer decides to attack your LEFT with its LEFT"
+            text = "Computer2 decides to attack computer1's LEFT with its LEFT"
             foundAGoodMove = True
         elif ((p1.get_L() > 0) and (p2.get_R() > 0) and self.isSituationSafe(p1.get_L() + p2.get_R(), p1.get_R(), p2.get_L(), p2.get_R())):
             p1.add_toL(p2.get_R())
-            text = "Computer decides to attack your LEFT with its RIGHT"
+            text = "Computer2 decides to attack computer1's LEFT with its RIGHT"
             foundAGoodMove = True
         elif ((p1.get_R() > 0) and (p2.get_L() > 0) and self.isSituationSafe(p1.get_L(), p1.get_R() + p2.get_L(), p2.get_L(), p2.get_R())):
             p1.add_toR(p2.get_L())
-            text = "Computer decides to attack your RIGHT with its LEFT"
+            text = "Computer2 decides to attack computer1's RIGHT with its LEFT"
             foundAGoodMove = True
         elif ((p1.get_R() > 0) and (p2.get_R() > 0) and self.isSituationSafe(p1.get_L(), p1.get_R() + p2.get_R(), p2.get_L(), p2.get_R())):
             p1.add_toR(p2.get_R())
-            text = "Computer decides to attack your RIGHT with its RIGHT"
+            text = "Computer2 decides to attack computer1's RIGHT with its RIGHT"
             foundAGoodMove = True
         else:
             # loop through all possible numbers for P2's left hand
@@ -749,19 +757,19 @@ class A_chopsticks:
                     if (i < p2.get_L()):
                         #computer switched Left to Right
                         p2.move_LtoR(p2.get_L() - i)
-                        text = "Computer decides to switch from its LEFT to RIGHT"
+                        text = "Computer2 decides to switch from its LEFT to RIGHT"
                         foundAGoodMove = True
                     else:
                         #computer switched Right to Left
                         p2.move_RtoL(i - p2.get_L())
-                        text = "Computer decides to switch from its RIGHT to LEFT"
+                        text = "Computer2 decides to switch from its RIGHT to LEFT"
                         foundAGoodMove = True
                     break
         
         # if none of the options work, do a random option
         if (foundAGoodMove == False):
             p1.add_toL(p2.get_L())
-            text = "Computer has no other choice but to attack your LEFT with its LEFT"
+            text = "Computer2 has no other choice but to attack computer1's LEFT with its LEFT"
 
         
         # draws text on window explain the move the computer will make
@@ -798,14 +806,14 @@ class A_chopsticks:
         game_g.hand_images()
         
         # while neither of the players are out, play the game!
-        while (p1.get_R() > 0 or p1.get_L() > 0) and (p2.get_R() > 0 or p2.get_L() > 0):
+        while (True):
             # step 1: computer 1's turn
             # print to the command line the situation of the game
             self.display_info(p1, p2)
             print("Player 1(computer 1)'s Turn")
             
             # it is computer 1's turn. Use the intelligence for the computer to go
-            game_g.c_turn(p1,p2)
+            game_g.c_turn(p1,p2,True)
             self.comp_play_p1(p1, p2, game_g)  
 
             # step 2: check if computer 2 has died
@@ -818,8 +826,8 @@ class A_chopsticks:
             if (p2.get_R() == 0 and p2.get_L() == 0):
                 self.display_info(p1, p2)
                 print("Computer 1 won!")
-                game_g.close()
-                exit()
+                game_g.compwin(True)
+                break
             
             # step 3: computer 2's turn
             # if the game shall go on
@@ -827,7 +835,7 @@ class A_chopsticks:
             print("Player 2(computer 2)'s Turn")
             
             # it is the computers turn.  Use the intelligence for the computer to go
-            game_g.c_turn(p1,p2)
+            game_g.c_turn(p1,p2,False)
             self.comp_play_p2(p1, p2, game_g)  
             
             # step 4: check if computer 1 has died
@@ -840,7 +848,8 @@ class A_chopsticks:
             if (p1.get_R() == 0 and p1.get_L() == 0):
                 self.display_info(p1, p2)
                 print("Computer 2 won!")
-                game_g.compwin()
+                game_g.compwin(False)
+                break
             
         game_g.close()
         exit()
