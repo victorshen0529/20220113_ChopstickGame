@@ -30,6 +30,7 @@ from stat import FILE_ATTRIBUTE_SPARSE_FILE
 import graphics
 
 import time
+import random
 
 class Hand:
     '''
@@ -182,22 +183,22 @@ class Game_Graphics:
         p2 - hand instance of player 2(computer)
         '''
         
-        self.h_r = graphics.Text(graphics.Point(578,475), str(int(p1.get_R())))
+        self.h_r = graphics.Text(graphics.Point(578,475), str(int(p2.get_R())))
         self.h_r.draw(self.win)
         self.h_r.setTextColor("Firebrick")
         self.h_r.setSize(20)
         self.h_r.setStyle("bold")
-        self.h_l= graphics.Text(graphics.Point(230,475), str(int(p1.get_L())))
+        self.h_l= graphics.Text(graphics.Point(230,475), str(int(p2.get_L())))
         self.h_l.draw(self.win)
         self.h_l.setTextColor("Firebrick")
         self.h_l.setSize(20)
         self.h_l.setStyle("bold")
-        self.c_r= graphics.Text(graphics.Point(578,275), str(int(p2.get_R())))
+        self.c_r= graphics.Text(graphics.Point(578,275), str(int(p1.get_R())))
         self.c_r.draw(self.win)
         self.c_r.setTextColor("Medium Slate Blue")
         self.c_r.setSize(20)
         self.c_r.setStyle("bold")
-        self.c_l = graphics.Text(graphics.Point(230,275), str(int(p2.get_L())))
+        self.c_l = graphics.Text(graphics.Point(230,275), str(int(p1.get_L())))
         self.c_l.draw(self.win)
         self.c_l.setTextColor("Medium Slate Blue")
         self.c_l.setSize(20)
@@ -633,22 +634,9 @@ class A_chopsticks:
         else:
             return True
 
-    def comp_play_p1(self, p1, p2, game_g):
-        '''
-        This program is the intelligence for computer1 to use the old AI to find the next move.
-        p1 is the hand instance of computer1, and p2 is the hand instance of 
-        computer2.  game_g is a Game_Graphics instance.
-        '''
-        
-        # create an empty string which later gets updated to hold text that explains the
-        #   next move of the computer which will get used in method comp_dec for p1.
-        text =""
-        
-        # various moves the computer should take depending on the current situation.
-        #   to sum it up, when available, always bring back the 'dead' hand through the
-        #   switch move.  Then attack whatever hand has 4 fingers.  Then attack the left
-        #   or right hand depending on whichever is not 'dead'
-        if p1.get_L() == 0 and p1.get_R() > 1:
+    def comp_play_p1_switch(self, p1, p2):
+        text = ""
+        if ((p1.get_R() - p1.get_L()) > 1):
             if p1.get_R() % 2 == 0:
                 #computer1 switched Right to Left(even)
                 p1.move_RtoL((p1.get_R()/2))
@@ -657,7 +645,7 @@ class A_chopsticks:
                 #computer1 switched Right to Left(odd)
                 p1.move_RtoL((p1.get_R()//2))
                 text = "Computer1 decides to switch from its RIGHT to LEFT"
-        elif p1.get_R() == 0 and p1.get_L() > 1:
+        elif ((p1.get_L() - p1.get_R()) > 1):
             if p1.get_L() % 2 == 0:
                 #computer1 switched Left to Right(even)
                 p1.move_LtoR((p1.get_L()/2))
@@ -666,7 +654,11 @@ class A_chopsticks:
                 #computer1 switched Left to Right(odd)
                 p1.move_LtoR((p1.get_L()//2))
                 text = "Computer1 decides to switch from LEFT to RIGHT"
-        elif p1.get_R() >= 1:
+        return text
+
+    def comp_play_p1_attack(self, p1, p2):
+        text = ""
+        if p1.get_R() >= 1:
             if p2.get_R() > 3:
                 #computer1 attacks Right with Right
                 p2.add_toR(p1.get_R())
@@ -700,6 +692,34 @@ class A_chopsticks:
                 #computer attacks Left with Left
                 p2.add_toL(p1.get_L())
                 text = "Computer1 decides to attack computer2's LEFT with its LEFT"
+        return text
+
+    def comp_play_p1(self, p1, p2, game_g):
+        '''
+        This program is the intelligence for computer1 to use the old AI to find the next move.
+        p1 is the hand instance of computer1, and p2 is the hand instance of 
+        computer2.  game_g is a Game_Graphics instance.
+        '''
+        
+        # create an empty string which later gets updated to hold text that explains the
+        #   next move of the computer which will get used in method comp_dec for p1.
+        text =""
+        
+        # various moves the computer should take depending on the current situation.
+        #   to sum it up, when available, always bring back the 'dead' hand through the
+        #   switch move.  Then attack whatever hand has 4 fingers.  Then attack the left
+        #   or right hand depending on whichever is not 'dead'
+
+        # will comment later
+        ran_num = random.randint(0, 0)
+        if (ran_num == 0):
+            text = self.comp_play_p1_switch(p1, p2)
+            if (text == ""):
+                text = self.comp_play_p1_attack(p1, p2)
+        else:
+            text = self.comp_play_p1_attack(p1, p2)
+            if (text == ""):
+                text = self.comp_play_p1_switch(p1, p2)
         
         # draws text on window explain the move the computer will make
         game_g.comp_dec(text)
@@ -711,7 +731,6 @@ class A_chopsticks:
         # prints to command line for reference
         print (text)
 
-#Victor: I was here        
     def comp_play_p2(self, p1, p2, game_g):
         '''
         This program is the intelligence for the computer to go off of.
