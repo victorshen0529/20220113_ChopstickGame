@@ -1,3 +1,21 @@
+# Chopstick Game in Python for Kids
+
+## About This Program
+
+## How to Run This Program
+
+## Game Rules
+
+## How to Download the Source Code
+
+## Software Structure
+
+## Future Work
+
+## Contact the Author
+If you have any questions or see any bugs, please write them in the issues of the code repo. I look forward to hearing from you!
+
+
 # Chopstick-game
 Intro to Computer Science final project. Winter • 2017. 
 
