@@ -1,16 +1,17 @@
 # Chopstick Game in Python for Kids
 
-This program allows kids to play Chopsticks against a computer. To play the game, you need a computer with Python installed. The OS can be Windows, Mac, Linux, etc.
+This program allows kids to play Chopsticks against a computer. To play the game, you need a computer with Python3 installed. The OS can be Windows, Mac, Linux, etc.
 
 This code repo is based on Yingying and Chae's previous work on Chopstick-game.
 <code>https://github.com/yingyingww/Chopstick-game</code>
 
-
 ## How to Download the Source Code
 You can use either HTTPS or SSH to clone the code repo:
 
+HTTPS:
 <code>git clone https://github.com/victorshen0529/20220113_ChopstickGame.git</code>, or
 
+SSH:
 <code>git clone git@github.com:victorshen0529/20220113_ChopstickGame.git</code>
 
 ## How to Run This Program
@@ -19,7 +20,7 @@ You need to go the the directory of the source code. In a terminal, type
 
 <code>python3 chopsticks.py</code>
 
-Alternatively, you can load the directory in Visual Studio Code (https://code.visualstudio.com/download), select chopsticks.py, and click the run button.
+Alternatively, you can load the file directory in Visual Studio Code (https://code.visualstudio.com/download), select chopsticks.py, and click the run button.
 
 ## Game Rules
 
@@ -34,4 +35,5 @@ There are two files. One is chopsticks.py and the other is graphics.py. Graphics
 I want to look through the computers AI to look at why it always switches.
 
 ## Contact the Author
+
 If you have any questions or see any bugs, please write them in the issues of the code repo. I look forward to hearing from you!
