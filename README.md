@@ -33,6 +33,8 @@ There are two files. One is chopsticks.py and the other is graphics.py. Graphics
 ## Future Work
 
 I want to look through the computers AI to look at why it always switches.
+I also want to make another program that makes a computer play against another computer which is in the branch
+of old_ai_vs_new_ai.
 
 ## Contact the Author
 
